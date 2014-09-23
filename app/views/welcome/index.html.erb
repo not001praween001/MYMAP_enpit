@@ -1,13 +1,13 @@
 <html>
 <head>
 <h2>MyGoogleMap</h2>
-<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
+<!--<script type="text/javascript" src="jquery-1.6.2.min.js"></script>-->
 <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC2yxk59BzytEZwNKI_QmO9J0wgWr0ZJrw&sensor=FALSE">
 </script>
 
 <script>
 var map;
-var Tokyo = new google.maps.LatLng(37.230328,139.394531);
+var TokyoJson = new google.maps.LatLng("37.230328,139.394531");
 
 // Add a Home control that returns the user to Tokyo
 function HomeControl(controlDiv, map) {
@@ -39,11 +39,14 @@ function initialize(lng) {
       var myOptions;
       if(!lng){
            
-          myOptions = {
+          myOptions = TokyoJson
+	  var TokyoJson = new google.maps.LatLng("37.230328,139.394531");
+/*{
               zoom: 5,
               center: Tokyo,
               mapTypeId: google.maps.MapTypeId.ROADMAP
-          }
+          }*/
+	console.log(document.getElementById('LNG').value);
       }else {
           
       }
@@ -75,11 +78,11 @@ function addrSearch(){
 <body>
 <div id="googleMap" style="width:500px;height:380px;"></div>
 </div>
-<form action="#">
+<form action = "#">
 ADRESS: <input type="text" name="ADDRESS" value="Tokyo"><br>
 CODE: <input type="text" name="CODE" value="1690051"><br>
 LNG: <input type="text" name="LNG" value="37.230328,139.394531"><br>
-<input type="submit" value="button" onclick="initialize(document.getElementById('LNG'));">
+<input type="submit" value="button" onclick="initialize(document.getElementById('LNG').value);">
 </form>
 
 <p>Click the "Submit" button and the form-data will be sent to  the server.</p>
