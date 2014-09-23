@@ -36,9 +36,10 @@ function HomeControl(controlDiv, map) {
 
 function initialize(lng) {
       var mapDiv = document.getElementById('googleMap');
+      var myOptions;
       if(!lng){
            
-          var myOptions = {
+          myOptions = {
               zoom: 5,
               center: Tokyo,
               mapTypeId: google.maps.MapTypeId.ROADMAP
