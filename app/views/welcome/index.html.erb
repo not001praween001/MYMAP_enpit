@@ -1,6 +1,7 @@
 <html>
 <head>
 <h2>MyGoogleMap</h2>
+<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
 <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC2yxk59BzytEZwNKI_QmO9J0wgWr0ZJrw&sensor=FALSE">
 </script>
 
@@ -33,33 +34,55 @@ function HomeControl(controlDiv, map) {
 }
 
 
-function initialize() {
-  var mapDiv = document.getElementById('googleMap'); 
-  var myOptions = {
-    zoom: 5,
-    center: Tokyo,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  }
-  map = new google.maps.Map(mapDiv, myOptions); 
-  // Create a DIV to hold the control and call HomeControl()
-  var homeControlDiv = document.createElement('div');
-  var homeControl = new HomeControl(homeControlDiv, map);
-//  homeControlDiv.index = 1;
-  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+function initialize(lng) {
+      var mapDiv = document.getElementById('googleMap');
+      if(!lng){
+           
+          var myOptions = {
+              zoom: 5,
+              center: Tokyo,
+              mapTypeId: google.maps.MapTypeId.ROADMAP
+          }
+      }else {
+          
+      }
+      map = new google.maps.Map(mapDiv, myOptions);
+      // Create a DIV to hold the control and call HomeControl()
+      var homeControlDiv = document.createElement('div');
+      var homeControl = new HomeControl(homeControlDiv, map);
+      //homeControlDiv.index = 1;
+      map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
 }
 
 
 google.maps.event.addDomListener(window, 'load', initialize);
+
+function addrSearch(){
+      var lngObj=document.getElementById("LNG").value;
+      console.log(lngObj);
+      var myOptions = {
+          zoom: 5,
+          center: lngObj,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+      }
+
+      map
+}
 </script>
 </head>
 
 <body>
 <div id="googleMap" style="width:500px;height:380px;"></div>
 </div>
+<<<<<<< HEAD
 <form action = "#">
+=======
+<form action="#">
+>>>>>>> f4976038ac44b08d1aa7072b1c5a68613f2cc096
 ADRESS: <input type="text" name="ADDRESS" value="Tokyo"><br>
 CODE: <input type="text" name="CODE" value="1690051"><br>
-<input type="submit" value="Submit">
+LNG: <input type="text" name="LNG" value="37.230328,139.394531"><br>
+<input type="submit" value="button" onclick="initialize(document.getElementById('LNG'));">
 </form>
 
 <p>Click the "Submit" button and the form-data will be sent to  the server.</p>
