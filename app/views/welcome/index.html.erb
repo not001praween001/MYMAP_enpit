@@ -1,4 +1,269 @@
-<html> 
+<html>
+<head>
+<h2>MyGoogleMap</h2>
+<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC2yxk59BzytEZwNKI_QmO9J0wgWr0ZJrw&sensor=FALSE">
+</script>
+
+<script>
+var XMLHttpFactories = [
+	function () {return new XMLHttpRequest()},
+	function () {return new ActiveXObject("Msxml2.XMLHTTP")},
+	function () {return new ActiveXObject("Msxml3.XMLHTTP")},
+	function () {return new ActiveXObject("Microsoft.XMLHTTP")}
+];
+function createXMLHTTPObject() {
+	var xmlhttp = false;
+	for (var i=0;i<XMLHttpFactories.length;i++) {
+		try {
+			xmlhttp = XMLHttpFactories[i]();
+		}
+		catch (e) {
+			continue;
+		}
+		break;
+	}
+	return xmlhttp;
+}
+
+var googleMapResult;
+function handleDat(req) {
+	var writes = document.getElementById("showdat");
+	var serverResponse = req.responseText;
+	writes.innerHTML = serverResponse;
+	//writes.textContent = serverResponse;
+	var JSONParse = JSON.parse(serverResponse);
+	googleMapResult = JSONParse;
+	for(var i = 0; i < JSONParse.results.length; i++ ){
+		writes.innerHTML += "<br><hr>";
+		writes.innerHTML += "<br>";
+		writes.innerHTML += "formatted_address: " + JSONParse.results[i].formatted_address + "<br>";
+		writes.innerHTML += "geometry.bounds.northeast.lat: " + JSONParse.results[i].geometry.bounds.northeast.lat + "<br>";
+		writes.innerHTML += "geometry.bounds.northeast.lng: " + JSONParse.results[i].geometry.bounds.northeast.lng + "<br>";
+		writes.innerHTML += "geometry.bounds.southwest.lat: " + JSONParse.results[i].geometry.bounds.southwest.lat + "<br>";
+		writes.innerHTML += "geometry.bounds.southwest.lng: " + JSONParse.results[i].geometry.bounds.southwest.lng + "<br>";
+	}
+}
+
+
+function doGetDat(url,callback,postData) {
+	var req = createXMLHTTPObject();
+	if (!req) return;
+	var method = (postData) ? "POST" : "GET";
+	req.open(method,url,true);
+	
+	if (postData){
+		req.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+		req.send(postData);
+	}
+	req.onreadystatechange = function () {
+		if (req.readyState == 1){//unsent
+			console.log('unsent state\r\n');
+			return;
+		}
+		if (req.readyState == 2){//opened
+			console.log('opened state\r\n');
+			if(postData){
+				req.send(postData);
+			}
+			return;
+		}
+		if (req.readyState == 3){//header received
+			console.log('header received state\r\n');
+			return;
+		}
+		if (req.readyState == 4){//done
+			if (req.status != 200 && req.status != 304) {
+				console.log('HTTP error ' + req.status);
+				return;
+			}
+			callback(req);
+			return;
+		}
+	}
+	if (req.readyState == 4) return;
+	req.send(postData);
+}
+
+
+
+
+var map;
+var addresses = "";
+
+var geoAPI="http://maps.googleapis.com/maps/api/geocode/json?address="+addresses+"&sensor=false";
+var TokyoJson = new google.maps.LatLng(37.230328,139.394531);
+
+// Add a Home control that returns the user to Tokyo
+function HomeControl(controlDiv, map) {
+	controlDiv.style.padding = '5px';
+	var controlUI = document.createElement('div');
+	controlUI.style.backgroundColor = 'yellow';
+	controlUI.style.border='1px solid';
+	controlUI.style.cursor = 'pointer';
+	controlUI.style.textAlign = 'center';
+	controlUI.title = 'Set map to Tokyo';
+	controlDiv.appendChild(controlUI);
+	var controlText = document.createElement('div');
+	controlText.style.fontFamily='Arial,sans-serif';
+	controlText.style.fontSize='12px';
+	controlText.style.paddingLeft = '4px';
+	controlText.style.paddingRight = '4px';
+	controlText.innerHTML = '<b>Home<b>'
+	controlUI.appendChild(controlText);
+	
+	// Setup click-event listener: simply set the map to Tokyo
+	google.maps.event.addDomListener(controlUI, 'click', function() {
+		map.setCenter(TokyoJson);
+	});
+}
+function searchByLoation(lat, lng){
+	var mapDiv = document.getElementById('googleMap');
+      var myOptions;
+	  console.log("TokyoJson: " + TokyoJson);
+	  //console.log("latlng: " + toString(latlng));
+      if( lat && lng ){
+			//var latlngObj = document.getElementById(latlng);
+			//console.log("latlng:" + latlngObj.value);
+			//Let go address search
+			
+			addresses = document.getElementById("ADDRESS").value + "" + document.getElementById("CODE").value;
+			geoAPI="http://maps.googleapis.com/maps/api/geocode/json?address="+addresses+"&sensor=false";
+			
+			console.log(geoAPI);
+			doGetDat(geoAPI,handleDat);
+			console.log("doDetDat finished.");
+			
+			TokyoJson = new google.maps.LatLng(lat, lng);
+			myOptions={	
+				zoom: 5,
+				center: TokyoJson,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			}
+			map = new google.maps.Map(mapDiv, myOptions);
+			// Create a DIV to hold the control and call HomeControl()
+			var homeControlDiv = document.createElement('div');
+			var homeControl = new HomeControl(homeControlDiv, map);
+			//homeControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+      }
+}
+var paramObj = new function(){}
+var crearParamObj = new function(){
+	paramObj.param1=null;
+	paramObj.param2=null;
+}
+function initialize() {
+	var mapDiv = document.getElementById('googleMap');
+	var param1 = paramObj.param1;
+	var param2 = paramObj.param2;
+	var myOptions;
+	console.log("TokyoJson: " + TokyoJson);
+	//console.log("latlng: " + toString(latlng));
+	
+	//Let go location search
+	if(!document.getElementById('isAddress').checked && document.getElementById('isLocation').checked){
+	  var lat = param1;
+	  var lng = param2;
+	  if( lat && lng ){
+			//var latlngObj = document.getElementById(latlng);
+			//console.log("latlng:" + latlngObj.value);
+			addresses = document.getElementById("ADDRESS").value + "" + document.getElementById("CODE").value;
+			geoAPI="http://maps.googleapis.com/maps/api/geocode/json?address="+addresses+"&sensor=false";
+			
+			console.log(geoAPI);
+			doGetDat(geoAPI,handleDat);
+			console.log("doDetDat finished.");
+			
+			TokyoJson = new google.maps.LatLng(lat, lng);
+			myOptions={	
+				zoom: 5,
+				center: TokyoJson,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			}
+			map = new google.maps.Map(mapDiv, myOptions);
+			// Create a DIV to hold the control and call HomeControl()
+			var homeControlDiv = document.createElement('div');
+			var homeControl = new HomeControl(homeControlDiv, map);
+			//homeControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+	  }else {
+			//myOptions = TokyoJson
+			//var TokyoJson = new google.maps.LatLng("37.230328,139.394531");
+			console.log(document.getElementById("ADDRESS").value + "" + document.getElementById("CODE").value);
+			
+			myOptions={	
+				zoom: 5,
+				center: TokyoJson,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			}
+			
+			map = new google.maps.Map(mapDiv, myOptions);
+			// Create a DIV to hold the control and call HomeControl()
+			var homeControlDiv = document.createElement('div');
+			var homeControl = new HomeControl(homeControlDiv, map);
+			//homeControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+	  }
+	}
+	//Let go address search
+	if(document.getElementById('isAddress').checked && !document.getElementById('isLocation').checked){
+		//Please add you address search (Because it is your idea ^0^)
+	}
+      
+	  console.log("INIT: ok");
+}
+
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+function addrSearch(){
+      var lngObj=document.getElementById("LNG").value;
+      console.log(lngObj);
+      var myOptions = {
+          zoom: 5,
+          center: lngObj,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+      }
+}
+</script>
+</head>
+
+<body>
+<div id="showdat"></div>
+<div id="googleMap" style="width:500px;height:380px;"></div>
+</div>
+
+<script language="javascript">
+var doUncheck = function(clickedMe, checkBoxContentIDArr){
+	var me = document.getElementById(clickedMe);
+	for(var i = 0; i < checkBoxContentIDArr.length; i++ ){
+		var obj = document.getElementById(checkBoxContentIDArr[i]);
+		if(obj.checked)
+			obj.checked = false;
+	}
+	me.checked = true;
+}
+</script>
+<form action = "#"><br>
+<input type="checkbox" id="isAddress" value="isAddress" onclick="doUncheck('isAddress', new Array('isLocation'));">
+
+ADRESS:
+<input type="text" id="ADDRESS" name="ADDRESS" value="Tokyo"><br>
+CODE: <input type="text" id="CODE" name="CODE" value="1690051">
+<hr>
+<input id="isLocation" type="checkbox" value="isLocation" onclick="doUncheck('isLocation', new Array('isAddress'));" checked>
+LAT-LNG: <input type="text" id="LAT" name="LAT" value="37.230328">,<input type="text" id="LNG" name="LNG" value="139.394531"><br>
+<input type="submit" value="button" onClick="javascript:initialize(); paramObj.param1='LAT'; paramObj.param2='LNG';">
+</form>
+
+<p>Click the "Submit" button and the form-data will be sent to  the server.</p>
+</body>
+</html>
+
+
+
+<!--<html> 
 <head> 
     <h2>Welcome to My Google Maps </h2>  
     <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script> 
@@ -51,51 +316,6 @@
          
     </script> 
     
-    
-  <!--  <script>
-    var map;
-      var Tokyo = new google.maps.LatLng(37.230328,139.394531); 
-      // Add a Home control that returns the user to Tokyo
-function HomeControl(controlDiv, map) {
-  controlDiv.style.padding = '5px';
-  var controlUI = document.createElement('div');
-  controlUI.style.backgroundColor = 'yellow';
-  controlUI.style.border='1px solid';
-  controlUI.style.cursor = 'pointer';
-  controlUI.style.textAlign = 'center';
-  controlUI.title = 'Set map to Tokyo';
-  controlDiv.appendChild(controlUI);
-  var controlText = document.createElement('div');
-  controlText.style.fontFamily='Arial,sans-serif';
-  controlText.style.fontSize='12px';
-  controlText.style.paddingLeft = '4px';
-  controlText.style.paddingRight = '4px';
-  controlText.innerHTML = '<b>Home<b>'
-  controlUI.appendChild(controlText);
-
-  // Setup click-event listener: simply set the map to Tokyo
-  google.maps.event.addDomListener(controlUI, 'click', function() {
-    map.setCenter(Tokyo)
-  });
-}
-     
-             
-  function initialize() {
-  var mapDiv = document.getElementById('googleMap'); 
-  var myOptions = {
-    zoom: 5,
-    center: Tokyo,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  }
-  map = new google.maps.Map(mapDiv, myOptions); 
-  // Create a DIV to hold the control and call HomeControl()
-  var homeControlDiv = document.createElement('div');
-  var homeControl = new HomeControl(homeControlDiv, map);
-//  homeControlDiv.index = 1;
-  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
-}
-google.maps.event.addDomListener(window, 'load', initialize);
-</script> -->
 
     <style type="text/css"> 
         #gmap 
@@ -115,5 +335,5 @@ google.maps.event.addDomListener(window, 'load', initialize);
     latitude :   <span id="lat"></span><br /> 
     longitude :<span id="lng"></span> 
 </body> 
-</html> 
+</html> -->
   
