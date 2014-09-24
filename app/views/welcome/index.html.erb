@@ -1,37 +1,115 @@
 <html>
 <head>
 <h2>MyGoogleMap</h2>
-
+<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
 <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC2yxk59BzytEZwNKI_QmO9J0wgWr0ZJrw&sensor=FALSE">
 </script>
 
 <script>
-var map;
+var XMLHttpFactories = [
+	function () {return new XMLHttpRequest()},
+	function () {return new ActiveXObject("Msxml2.XMLHTTP")},
+	function () {return new ActiveXObject("Msxml3.XMLHTTP")},
+	function () {return new ActiveXObject("Microsoft.XMLHTTP")}
+];
+function createXMLHTTPObject() {
+	var xmlhttp = false;
+	for (var i=0;i<XMLHttpFactories.length;i++) {
+		try {
+			xmlhttp = XMLHttpFactories[i]();
+		}
+		catch (e) {
+			continue;
+		}
+		break;
+	}
+	return xmlhttp;
+}
 
-var TokyoJson = new google.maps.LatLng(37.230328,139.394531);
+
+function handleDat(req) {
+	
+	var writes = document.getElementById("showdat");
+	var serverResponse = req.responseText;
+	writes.innerHTML = serverResponse;
+	
+	//var JSONParse = JSON.parse(serverResponse);
+	
+	
+}
+
+
+function doGetDat(url,callback,postData) {
+	var req = createXMLHTTPObject();
+	if (!req) return;
+	var method = (postData) ? "POST" : "GET";
+	req.open(method,url,true);
+	
+	if (postData){
+		req.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+		req.send(postData);
+	}
+	req.onreadystatechange = function () {
+		if (req.readyState == 1){//unsent
+			console.log('unsent state\r\n');
+			return;
+		}
+		if (req.readyState == 2){//opened
+			console.log('opened state\r\n');
+			if(postData){
+				req.send(postData);
+			}
+			return;
+		}
+		if (req.readyState == 3){//header received
+			console.log('header received state\r\n');
+			return;
+		}
+		if (req.readyState == 4){//done
+			if (req.status != 200 && req.status != 304) {
+				console.log('HTTP error ' + req.status);
+				return;
+			}
+			callback(req);
+			return;
+		}
+	}
+	if (req.readyState == 4) return;
+	req.send(postData);
+}
+
+
+
+
+var map;
+var addresses = "";
+
+var geoAPI="http://maps.googleapis.com/maps/api/geocode/json?address="+addresses+"&sensor=false";
+var TokyoJson = new google.maps.LatLng("37.230328,139.394531");
+var Tokyo = new google.maps.LatLng("37.230328,139.394531");
 
 // Add a Home control that returns the user to Tokyo
 function HomeControl(controlDiv, map) {
-  controlDiv.style.padding = '5px';
-  var controlUI = document.createElement('div');
-  controlUI.style.backgroundColor = 'yellow';
-  controlUI.style.border='1px solid';
-  controlUI.style.cursor = 'pointer';
-  controlUI.style.textAlign = 'center';
-  controlUI.title = 'Set map to Tokyo';
-  controlDiv.appendChild(controlUI);
-  var controlText = document.createElement('div');
-  controlText.style.fontFamily='Arial,sans-serif';
-  controlText.style.fontSize='12px';
-  controlText.style.paddingLeft = '4px';
-  controlText.style.paddingRight = '4px';
-  controlText.innerHTML = '<b>Home<b>'
-  controlUI.appendChild(controlText);
-
-  // Setup click-event listener: simply set the map to Tokyo
-  google.maps.event.addDomListener(controlUI, 'click', function() {
-    map.setCenter(Tokyo)
-  });
+	controlDiv.style.padding = '5px';
+	var controlUI = document.createElement('div');
+	controlUI.style.backgroundColor = 'yellow';
+	controlUI.style.border='1px solid';
+	controlUI.style.cursor = 'pointer';
+	controlUI.style.textAlign = 'center';
+	controlUI.title = 'Set map to Tokyo';
+	controlDiv.appendChild(controlUI);
+	var controlText = document.createElement('div');
+	controlText.style.fontFamily='Arial,sans-serif';
+	controlText.style.fontSize='12px';
+	controlText.style.paddingLeft = '4px';
+	controlText.style.paddingRight = '4px';
+	controlText.innerHTML = '<b>Home<b>'
+	controlUI.appendChild(controlText);
+	
+	// Setup click-event listener: simply set the map to Tokyo
+	google.maps.event.addDomListener(controlUI, 'click', function() {
+		map.setCenter(TokyoJson);
+	});
 }
 
 
@@ -40,16 +118,28 @@ function initialize(lng) {
       var myOptions;
       if(!lng){
            
-          myOptions = TokyoJson
-	  var TokyoJson = new google.maps.LatLng("37.230328,139.394531");
-/*{
-              zoom: 5,
-              center: Tokyo,
-              mapTypeId: google.maps.MapTypeId.ROADMAP
-          }*/
-	console.log(document.getElementById('LNG').value);
+          //myOptions = TokyoJson
+	  //var TokyoJson = new google.maps.LatLng("37.230328,139.394531");
+		console.log(document.getElementById("ADDRESS").value + "" + document.getElementById("CODE").value);
+		myOptions={	
+			zoom: 5,
+			center: TokyoJson,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		}
+		console.log("!lng" + document.getElementById('LNG').value);
       }else {
-          
+		console.log("lng:" + lng);
+		addresses = document.getElementById("ADDRESS").value + "" + document.getElementById("CODE").value;
+		geoAPI="http://maps.googleapis.com/maps/api/geocode/json?address="+addresses+"&sensor=false";
+		console.log(geoAPI);
+		doGetDat(geoAPI,handleDat);
+		console.log("doDetDat finished.");
+		
+		myOptions={	
+			zoom: 5,
+			center: TokyoJson,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		}
       }
       map = new google.maps.Map(mapDiv, myOptions);
       // Create a DIV to hold the control and call HomeControl()
@@ -71,19 +161,20 @@ function addrSearch(){
           mapTypeId: google.maps.MapTypeId.ROADMAP
       }
 
-//  map
+     // map
 }
 </script>
 </head>
 
 <body>
+<div id="showdat"></div>
 <div id="googleMap" style="width:500px;height:380px;"></div>
 </div>
 <form action = "#">
-ADRESS: <input type="text" name="ADDRESS" value="Tokyo"><br>
-CODE: <input type="text" name="CODE" value="1690051"><br>
-LNG: <input type="text" name="LNG" value="37.230328,139.394531"><br>
-<input type="submit" value="button" onclick="initialize(document.getElementById('LNG').value);">
+ADRESS: <input type="text" id="ADDRESS" name="ADDRESS" value="Tokyo"><br>
+CODE: <input type="text" id="CODE" name="CODE" value="1690051"><br>
+LNG: <input type="text" id="LNG" name="LNG" value="37.230328,139.394531"><br>
+<input type="submit" value="button" onClick="initialize(document.getElementById('LNG').value);">
 </form>
 
 <p>Click the "Submit" button and the form-data will be sent to  the server.</p>
