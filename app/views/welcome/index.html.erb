@@ -28,14 +28,20 @@ function createXMLHTTPObject() {
 
 
 function handleDat(req) {
-	
 	var writes = document.getElementById("showdat");
 	var serverResponse = req.responseText;
 	writes.innerHTML = serverResponse;
-	
-	//var JSONParse = JSON.parse(serverResponse);
-	
-	
+	//writes.textContent = serverResponse;
+	var JSONParse = JSON.parse(serverResponse);
+	for(var i = 0; i < JSONParse.results.length; i++ ){
+		writes.innerHTML += "<br><hr>";
+		writes.innerHTML += "<br>";
+		writes.innerHTML += "formatted_address: " + JSONParse.results[i].formatted_address + "<br>";
+		writes.innerHTML += "geometry.bounds.northeast: " + JSONParse.results[i].geometry.bounds.northeast.lat + "<br>";
+		writes.innerHTML += "geometry.bounds.northeast: " + JSONParse.results[i].geometry.bounds.northeast.lng + "<br>";
+		writes.innerHTML += "geometry.bounds.southwest: " + JSONParse.results[i].geometry.bounds.southwest.lat + "<br>";
+		writes.innerHTML += "geometry.bounds.southwest: " + JSONParse.results[i].geometry.bounds.southwest.lng + "<br>";
+	}
 }
 
 
@@ -160,8 +166,6 @@ function addrSearch(){
           center: lngObj,
           mapTypeId: google.maps.MapTypeId.ROADMAP
       }
-
-     // map
 }
 </script>
 </head>
@@ -173,7 +177,7 @@ function addrSearch(){
 <form action = "#">
 ADRESS: <input type="text" id="ADDRESS" name="ADDRESS" value="Tokyo"><br>
 CODE: <input type="text" id="CODE" name="CODE" value="1690051"><br>
-LNG: <input type="text" id="LNG" name="LNG" value="37.230328,139.394531"><br>
+LAT-LNG: <input type="text" id="LNG" name="LNG" value="37.230328,139.394531"><br>
 <input type="submit" value="button" onClick="initialize(document.getElementById('LNG').value);">
 </form>
 
