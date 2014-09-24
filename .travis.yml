@@ -1,0 +1,15 @@
+language: ruby
+rvm:
+- 2.1.2
+deploy:
+  provider: heroku
+  api_key:
+    secure: ISoCKAVpV1qQq/jBAZB4gsBn8TPYidp6ERjo2WLljb3ouPg50zK9SNezjm6watVZBJc2MJjHCwVZC+/DjuDICuZzWtFlpdjziJCec+od9Gyzvcco54Nf1eaAjwar/rcf09r+Y+VmhPZJ27ji0ArjQNklcixIU9XdY+3Ju872gEA=
+  app: still-ridge-1213
+  on:
+    repo: Olivia-tou/MYMAP_enpit
+addons:
+  postgresql: "9.3"
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+  - cp config/database.yml.travis config/database.yml
