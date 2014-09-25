@@ -173,7 +173,7 @@ function initialize() {
 			doGetDat(geoAPI,handleDat);
 			console.log("doDetDat finished.");*/
 			
-			TokyoJson = new google.maps.LatLng(lat, lng);
+			TokyoJson = new google.maps.LatLng(parseInt(lat), parseInt(lng));
 			myOptions={	
 				zoom: 5,
 				center: TokyoJson,
@@ -185,7 +185,7 @@ function initialize() {
 			var homeControl = new HomeControl(homeControlDiv, map);
 			//homeControlDiv.index = 1;
 			map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
-	  }else {
+	  }/*else {
 			//myOptions = TokyoJson
 			//var TokyoJson = new google.maps.LatLng("37.230328,139.394531");
 			console.log(document.getElementById("ADDRESS").value + "" + document.getElementById("CODE").value);
@@ -202,7 +202,7 @@ function initialize() {
 			var homeControl = new HomeControl(homeControlDiv, map);
 			//homeControlDiv.index = 1;
 			map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
-	  }
+	  }*/
 	}
 	//Let go address search
 	if(document.getElementById('isAddress').checked && !document.getElementById('isLocation').checked){
@@ -212,6 +212,7 @@ function initialize() {
 	  console.log(geoAPI);
 	  doGetDat(geoAPI,handleDat);
 	  console.log("doDetDat finished.");
+	  if(googleMapResult){
 	  var lat = parseInt(googleMapResult.results[0].location.lat);
 	  var lng = parseInt(googleMapResult.results[0].location.lng);
 	  if( lat && lng ){
@@ -248,6 +249,7 @@ function initialize() {
 			var homeControl = new HomeControl(homeControlDiv, map);
 			//homeControlDiv.index = 1;
 			map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+	  }
 	  }
 	}
       
