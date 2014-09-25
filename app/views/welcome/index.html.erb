@@ -166,14 +166,12 @@ function initialize() {
 	  var lat = param1;
 	  var lng = param2;
 	  if( lat && lng ){
-			//var latlngObj = document.getElementById(latlng);
-			//console.log("latlng:" + latlngObj.value);
-			addresses = document.getElementById("ADDRESS").value + "" + document.getElementById("CODE").value;
+			/*addresses = document.getElementById("ADDRESS").value + "" + document.getElementById("CODE").value;
 			geoAPI="http://maps.googleapis.com/maps/api/geocode/json?address="+addresses+"&sensor=false";
 			
 			console.log(geoAPI);
 			doGetDat(geoAPI,handleDat);
-			console.log("doDetDat finished.");
+			console.log("doDetDat finished.");*/
 			
 			TokyoJson = new google.maps.LatLng(lat, lng);
 			myOptions={	
@@ -208,7 +206,49 @@ function initialize() {
 	}
 	//Let go address search
 	if(document.getElementById('isAddress').checked && !document.getElementById('isLocation').checked){
-		//Please add you address search (Because it is your idea ^0^)
+	  addresses = document.getElementById("ADDRESS").value + "" + document.getElementById("CODE").value;
+	  geoAPI="http://maps.googleapis.com/maps/api/geocode/json?address="+addresses+"&sensor=false";
+			
+	  console.log(geoAPI);
+	  doGetDat(geoAPI,handleDat);
+	  console.log("doDetDat finished.");
+	  var lat = parseInt(googleMapResult.results[0].location.lat);
+	  var lng = parseInt(googleMapResult.results[0].location.lng);
+	  if( lat && lng ){
+			//var latlngObj = document.getElementById(latlng);
+			//console.log("latlng:" + latlngObj.value);
+			
+			
+			TokyoJson = new google.maps.LatLng(lat, lng);
+			myOptions={	
+				zoom: 5,
+				center: TokyoJson,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			}
+			map = new google.maps.Map(mapDiv, myOptions);
+			// Create a DIV to hold the control and call HomeControl()
+			var homeControlDiv = document.createElement('div');
+			var homeControl = new HomeControl(homeControlDiv, map);
+			//homeControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+	  }else {
+			//myOptions = TokyoJson
+			//var TokyoJson = new google.maps.LatLng("37.230328,139.394531");
+			console.log(document.getElementById("ADDRESS").value + "" + document.getElementById("CODE").value);
+			
+			myOptions={	
+				zoom: 5,
+				center: TokyoJson,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			}
+			
+			map = new google.maps.Map(mapDiv, myOptions);
+			// Create a DIV to hold the control and call HomeControl()
+			var homeControlDiv = document.createElement('div');
+			var homeControl = new HomeControl(homeControlDiv, map);
+			//homeControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+	  }
 	}
       
 	  console.log("INIT: ok");
@@ -245,7 +285,7 @@ var doUncheck = function(clickedMe, checkBoxContentIDArr){
 	me.checked = true;
 }
 </script>
-<form action = "#"><br>
+<br>
 <input type="checkbox" id="isAddress" value="isAddress" onclick="doUncheck('isAddress', new Array('isLocation'));">
 
 ADRESS:
@@ -255,85 +295,8 @@ CODE: <input type="text" id="CODE" name="CODE" value="1690051">
 <input id="isLocation" type="checkbox" value="isLocation" onclick="doUncheck('isLocation', new Array('isAddress'));" checked>
 LAT-LNG: <input type="text" id="LAT" name="LAT" value="37.230328">,<input type="text" id="LNG" name="LNG" value="139.394531"><br>
 <input type="submit" value="button" onClick="javascript:initialize(); paramObj.param1='LAT'; paramObj.param2='LNG';">
-</form>
+
 
 <p>Click the "Submit" button and the form-data will be sent to  the server.</p>
 </body>
 </html>
-
-
-
-<!--<html> 
-<head> 
-    <h2>Welcome to My Google Maps </h2>  
-    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script> 
-    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC2yxk59BzytEZwNKI_QmO9J0wgWr0ZJrw&sensor=FALSE"></script> 
-     <script>    
-        
-        google.maps.event.addDomListener(window, 'load', function() 
-        { 
-            var markerObj; 
-            var mapObj; 
-            var lng = 139.394531; 
-            var lat = 37.230328; 
-            var latlng = new google.maps.LatLng(lat, lng); 
- 
-            var mapOptions = { 
-                zoom: 5, 
-                center: latlng, 
-                mapTypeId: google.maps.MapTypeId.ROADMAP, 
-                scaleControl: true 
-            }; 
-    
-       mapObj = new google.maps.Map($("#gmap")[0], mapOptions); 
- 
-            markerObj = new google.maps.Marker({ 
-                position: latlng, 
-                draggable: true,
-                title: "Hi!", 
-                map: mapObj 
-            }); 
- 
-            // マップクリックイベントを追加 
-            google.maps.event.addListener(mapObj, 'click', function(e) 
-            { 
-                // ポジションを変更 
-                markerObj.position = e.latLng; 
- 
-                // マーカーをセット 
-                markerObj.setMap(mapObj); 
-                $("#lat").text(e.latLng.lat()); 
-                $("#lng").text(e.latLng.lng()); 
-            }); 
- 
-            // マーカードラッグ中のイベントを追加 
-            google.maps.event.addListener(markerObj, 'drag', function(e) 
-            { 
-                $("#lat").text(e.latLng.lat()); 
-                $("#lng").text(e.latLng.lng()); 
-            }); 
-        }); 
-         
-    </script> 
-    
-
-    <style type="text/css"> 
-        #gmap 
-        { 
-            margin-bottom: 15px; 
-        } 
-        #lat, #lng 
-        { 
-            font-size: 24px; 
-            padding:0px 15px; 
-        } 
-    </style> 
-</head> 
-<body> 
-    <div id="gmap" style="width:500px;height:380px;"> 
-    </div> 
-    latitude :   <span id="lat"></span><br /> 
-    longitude :<span id="lng"></span> 
-</body> 
-</html> -->
-  
